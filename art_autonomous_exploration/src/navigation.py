@@ -47,7 +47,7 @@ class Navigation:
 
         # Check if subgoal is reached via a timer callback
         rospy.Timer(rospy.Duration(0.10), self.checkTarget)
-        
+
         # Read the target function
         self.target_selector = rospy.get_param("target_selector")
         print "The selected target function is " + self.target_selector
@@ -57,17 +57,17 @@ class Navigation:
         self.path_publisher = \
             rospy.Publisher(rospy.get_param('path_pub_topic'), \
             Path, queue_size = 10)
-        
+
         # ROS Publisher for the subtargets
         self.subtargets_publisher = \
             rospy.Publisher(rospy.get_param('subgoals_pub_topic'),\
             MarkerArray, queue_size = 10)
-        
+
         # ROS Publisher for the current target
         self.current_target_publisher = \
             rospy.Publisher(rospy.get_param('curr_target_pub_topic'),\
             Marker, queue_size = 10)
-        
+
     def checkTarget(self, event):
         # Check if we have a target or if the robot just wanders
         if self.inner_target_exists == False or self.move_with_target == False or\
@@ -77,7 +77,7 @@ class Navigation:
         self.counter_to_next_sub -= 1
 
         if self.counter_to_next_sub == 0:
-          Print.art_print('\n~~~~ Time reset ~~~~',Print.RED) 
+          Print.art_print('\n~~~~ Time reset ~~~~',Print.RED)
           self.inner_target_exists = False
           self.target_exists = False
           return
@@ -90,23 +90,35 @@ class Navigation:
                     self.robot_perception.origin['y'] / self.robot_perception.resolution\
                     ]
 
-        # Find the distance between the robot pose and the next subtarget
-        dist = math.hypot(\
-            rx - self.subtargets[self.next_subtarget][0], \
-            ry - self.subtargets[self.next_subtarget][1])
-
         ######################### NOTE: QUESTION  ##############################
-        # What if a later subtarget or the end has been reached before the 
+        # What if a later subtarget or the end has been reached before the
         # next subtarget? Alter the code accordingly.
-        # Check if distance is less than 7 px (14 cm)
-        if dist < 5:
-          self.next_subtarget += 1
-          self.counter_to_next_sub = self.count_limit
-          # Check if the final subtarget has been approached
-          if self.next_subtarget == len(self.subtargets):
-            self.target_exists = False
+
+        #
+
+        # Instead of checking the distance of the next target,
+        # check the distance of the remaining targets, therefore you may reach to a next subject
+        # bypassing current.
+
+        for i in range(self.next_subtarget, len(self.subtargets)):
+            # Find the distance between the robot pose and the next subtarget
+            dist = math.hypot( rx - self.subtargets[i][0], ry - self.subtargets[i][1])
+
+            # check distance with the i_th target
+            if i != (len(self.subtargets)-1):
+                if dist < 8:        #if distance found to be small from a terget set as next the target i + 1
+                    self.next_subtarget = i + 1
+                    self.counter_to_next_sub = self.count_limit
+            else:
+                if dist < 5:        #if distance found to be small from a terget set as next the target i + 1
+                    self.next_subtarget = i + 1
+                    self.counter_to_next_sub = self.count_limit
+
+            # Check if the final subtarget has been approached
+            if self.next_subtarget == len(self.subtargets):
+                self.target_exists = False
         ########################################################################
-        
+
         # Publish the current target
         if self.next_subtarget == len(self.subtargets):
             return
@@ -157,13 +169,13 @@ class Navigation:
         # We are good to continue the exploration
         # Make this true in order not to call it again from the speeds assignment
         self.target_exists = True
-              
+
         # Gets copies of the map and coverage
         local_ogm = self.robot_perception.getMap()
         local_ros_ogm = self.robot_perception.getRosMap()
         local_coverage = self.robot_perception.getCoverage()
         print "Got the map and Coverage"
-        self.path_planning.setMap(local_ros_ogm) 
+        self.path_planning.setMap(local_ros_ogm)
 
         # Once the target has been found, find the path to it
         # Get the global robot pose
@@ -182,9 +194,9 @@ class Navigation:
                     local_coverage,\
                     self.robot_perception.robot_pose,
                     self.robot_perception.origin,
-                    self.robot_perception.resolution, 
+                    self.robot_perception.resolution,
                     force_random)
-          
+
           self.path = self.path_planning.createPath(\
               g_robot_pose,\
               target,
@@ -196,7 +208,7 @@ class Navigation:
                 "Path planning failed. Fallback to random target selection", \
                 Print.RED)
             force_random = True
-          
+
         # Reverse the path to start from the robot
         self.path = self.path[::-1]
 
@@ -209,7 +221,7 @@ class Navigation:
         self.subtargets.append(self.path[-1])
         self.next_subtarget = 0
         print "The path produced " + str(len(self.subtargets)) + " subgoals"
-        
+
         ######################### NOTE: QUESTION  ##############################
         # The path is produced by an A* algorithm. This means that it is
         # optimal in length but 1) not smooth and 2) length optimality
@@ -230,7 +242,12 @@ class Navigation:
           # Fill the ps.pose.position values to show the path in RViz
           # You must understand what self.robot_perception.resolution
           # and self.robot_perception.origin are.
-        
+
+          # Challenge 2: edit Dimitrios Antoniadis date 22/01/2020
+
+          ps.pose.position.x = p[0] * self.robot_perception.resolution + self.robot_perception.origin['x']
+          ps.pose.position.y = p[1] * self.robot_perception.resolution + self.robot_perception.origin['y']
+
           ########################################################################
           ros_path.poses.append(ps)
         self.path_publisher.publish(ros_path)
@@ -259,9 +276,9 @@ class Navigation:
         self.inner_target_exists = True
 
     def velocitiesToNextSubtarget(self):
-        
+
         [linear, angular] = [0, 0]
-        
+
         [rx, ry] = [\
             self.robot_perception.robot_pose['x_px'] - \
                     self.robot_perception.origin['x'] / self.robot_perception.resolution,\
@@ -270,18 +287,47 @@ class Navigation:
                     ]
         theta = self.robot_perception.robot_pose['th']
         ######################### NOTE: QUESTION  ##############################
-        # The velocities of the robot regarding the next subtarget should be 
-        # computed. The known parameters are the robot pose [x,y,th] from 
-        # robot_perception and the next_subtarget [x,y]. From these, you can 
+        # The velocities of the robot regarding the next subtarget should be
+        # computed. The known parameters are the robot pose [x,y,th] from
+        # robot_perception and the next_subtarget [x,y]. From these, you can
         # compute the robot velocities for the vehicle to approach the target.
         # Hint: Trigonometry is required
 
         if self.subtargets and self.next_subtarget <= len(self.subtargets) - 1:
             st_x = self.subtargets[self.next_subtarget][0]
             st_y = self.subtargets[self.next_subtarget][1]
-            
+
+            # We know goals position (x', y') and robot's position (x,y)
+            # It is tan(Theta_RG) = (y'-y)/(x'-x) = lamda
+            # Theta_RG = atan(lamda)
+            # Theta_RG is the angle between vector RobotGoal and Ox axis
+            Theta_RG = math.atan2(st_y - ry, st_x - rx)     # atan2 return the result in rads
+
+            # We can calculate the angle between the direction of robot's movement
+            # and the RG vector. The angle will be the difference of RGangle - theta(direction angle of robot's movement)
+            D_Theta = Theta_RG - theta
+
+            # Based on presentation 9, D_Theta
+            # has to be readjusted in [-pi, pi]
+            if (D_Theta < math.pi) and (D_Theta > -math.pi):
+                omega = D_Theta / math.pi
+            elif D_Theta >= math.pi:
+                omega = (D_Theta - 2 * math.pi) / math.pi
+            elif D_Theta <= -math.pi:
+                omega = (D_Theta + 2 * math.pi) / math.pi
+
+            # Linear Speed Calculation
+            # presentation 9: u = umax(1- |omega|)^n
+            # larger n -> lower speed
+            # max speed = 0.3
+            u = ((1 - abs(omega))**(6.00))
+            linear = 0.3 * u
+
+            # Robot is steering slowly
+            # therefore we had to make steer faster
+            # max speed = 0.3
+            omega = (math.copysign(abs(omega)**(1.0/6), omega))
+            angular = 0.3 * omega
         ######################### NOTE: QUESTION  ##############################
 
         return [linear, angular]
-
-    

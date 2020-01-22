@@ -12,12 +12,12 @@ from sonar_data_aggregator import SonarDataAggregator
 from laser_data_aggregator import LaserDataAggregator
 from navigation import Navigation
 
-# Class for assigning the robot speeds 
+# Class for assigning the robot speeds
 class RobotController:
 
     # Constructor
     def __init__(self):
-        
+
       # Debugging purposes
       self.print_velocities = rospy.get_param('print_velocities')
 
@@ -43,7 +43,7 @@ class RobotController:
 
     # This function publishes the speeds and moves the robot
     def publishSpeeds(self, event):
-        
+
       # Produce speeds
       self.produceSpeeds()
 
@@ -52,7 +52,7 @@ class RobotController:
       twist.linear.x = self.linear_velocity
       twist.linear.y = 0
       twist.linear.z = 0
-      twist.angular.x = 0 
+      twist.angular.x = 0
       twist.angular.y = 0
       twist.angular.z = self.angular_velocity
 
@@ -73,12 +73,34 @@ class RobotController:
       # Check what laser_scan contains and create linear and angular speeds
       # for obstacle avoidance
 
+      # Challenge 1     edit: Dimitrios Antoniadis      date: 22/01/2020
+
+      # Calculate Number of Measurements
+      N_measurements = len(scan)
+
+      # Initialize angles Vectors
+      angles = [0 for i in range(N_measurements)]
+
+      # Calculate Angles
+      for x in range(N_measurements):
+          angles[x] = math.radians(-135 + x*270/(N_measurements - 1))
+
+      # Calculate Linear Speeds based on presentation 9
+      for x in range(N_measurements):
+          linear = linear -(math.cos(angles[x]) / scan[x]**2)
+
+      # Calculate Angular Speeds based on presentation 9
+      for x in range(N_measurements):
+          angular = angular - (math.sin(angles[x]) / scan[x]**2)
+
+      # print linear, angular
+
       ##########################################################################
       return [linear, angular]
 
     # Combines the speeds into one output using a motor schema approach
     def produceSpeeds(self):
- 
+
       # Produce target if not existent
       if self.move_with_target == True and \
               self.navigation.target_exists == False:
@@ -98,23 +120,59 @@ class RobotController:
 
       # Get the submodule's speeds
       [l_laser, a_laser] = self.produceSpeedsLaser()
-      
+
       # You must fill these
-      self.linear_velocity  = 0
-      self.angular_velocity = 0
-      
+      self.linear_velocity  = 0           # edit: Dimitrios Antoniadis date: 22/01/2020
+      self.angular_velocity = 0           # edit: Dimitrios Antoniadis date: 22/01/2020
+
       if self.move_with_target == True:
         [l_goal, a_goal] = self.navigation.velocitiesToNextSubtarget()
         ############################### NOTE QUESTION ############################
         # You must combine the two sets of speeds. You can use motor schema,
         # subsumption of whatever suits your better.
 
+        # Based on presentation 9, we know
+        # that in a motor schema u = upath + c*u_obs
+        # and omega = omega_path + c*omega_obs
+        c1 = 10**(-5)
+        c2 = 10**(-5)
+        self.linear_velocity  = -0.05 + l_goal + l_laser * c1
+        if self.linear_velocity == 0: # just in case it stops
+            self.linear_velocity = 0.001
+
+        self.angular_velocity = a_goal + a_laser * c2
+
+        # Make sure speeds are on the range [-3,3]
+        self.linear_velocity = min(0.3, max(-0.3, self.linear_velocity))
+        self.angular_velocity = min(0.3, max(-0.3, self.angular_velocity))
+
+
         ##########################################################################
       else:
         ############################### NOTE QUESTION ############################
         # Implement obstacle avoidance here using the laser speeds.
         # Hint: Subtract them from something constant
-        pass
+
+        l_laser = l_laser + 1000      # add sth constant to move
+
+        # The robot must have a maximum absolute linear speed of 0.3 m/s
+        # and maximum absolute rotational speed 0.3 rad/sec.
+        if abs(l_laser) > 0.3:  # Correction if absolute linear is greater than 0.3 m/s
+            if l_laser > 0:
+                self.linear_velocity = 0.3
+            else:
+                self.linear_velocity = -0.3
+        else:
+            self.linear_velocity = l_laser
+
+        if abs(a_laser) > 0.3:   # Correction if absolute angular is greater than 0.3 rad/sec
+            if a_laser > 0:
+                self.angular_velocity = 0.3
+            else:
+                self.angular_velocity = -0.3
+        else:
+          self.angular_velocity = a_laser
+
         ##########################################################################
 
     # Assistive functions
