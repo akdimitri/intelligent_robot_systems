@@ -153,7 +153,8 @@ class RobotController:
         # Implement obstacle avoidance here using the laser speeds.
         # Hint: Subtract them from something constant
 
-        l_laser = l_laser + 1000      # add sth constant to move
+        l_laser = l_laser + 100      # add sth constant to move
+        a_laser = a_laser/300
 
         # The robot must have a maximum absolute linear speed of 0.3 m/s
         # and maximum absolute rotational speed 0.3 rad/sec.
