@@ -1,0 +1,70 @@
+\ProvidesPackage{settings}
+
+\usepackage[a4paper]{geometry}      % Paper = A4
+\usepackage[LGR, T1]{fontenc}       % Language Greek English encoding
+\usepackage[utf8]{inputenc}         % UTG-8 encoding
+\usepackage[english, greek]{babel}  %  
+\usepackage{alphabeta}              % greek letters for equations
+\usepackage{nameref}                % for name refs
+\usepackage{array}                  % for tabulars
+\usepackage{multirow}
+\usepackage[parfill]{parskip}       % 0 indent
+
+% Bibliography Packages
+\usepackage{csquotes}
+\usepackage[backend=biber,style=numeric, citestyle=ieee]{biblatex}
+\addbibresource{./References.bib}
+
+\usepackage{graphicx}               % Package for images etc.
+\usepackage{caption}
+\usepackage{subcaption}             % subcaptions
+\captionsetup{justification=centering}
+\usepackage{url}                    % Package for urls
+\usepackage{xcolor,colortbl}                 % Package to use Colors
+\usepackage{libertine}              % Package for fonts
+\usepackage{libertinust1math}       % Package for math fonts
+\usepackage{amsmath}
+\usepackage{multirow}
+\usepackage{rotating}
+\usepackage{listings}               % Package for importing source code
+\usepackage{wrapfig}
+\usepackage[justification=centering]{caption}
+
+\definecolor{codegreen}{rgb}{0,0.6,0}
+\definecolor{codegray}{rgb}{0.5,0.5,0.5}
+\definecolor{codepurple}{rgb}{0.58,0,0.82}
+\definecolor{backcolour}{rgb}{1,1,1}
+ 
+\lstdefinestyle{mystyle}{
+    backgroundcolor=\color{backcolour},   
+    commentstyle=\color{codegreen},
+    keywordstyle=\color{magenta},
+    numberstyle=\tiny\color{codegray},
+    stringstyle=\color{codepurple},
+    basicstyle=\footnotesize,
+    breakatwhitespace=false,         
+    breaklines=true,                 
+    captionpos=b,                    
+    keepspaces=true,                 
+    numbers=left,                    
+    numbersep=5pt,                  
+    showspaces=false,                
+    showstringspaces=false,
+    showtabs=false,                  
+    tabsize=2
+}
+
+\lstset{style=mystyle}
+
+
+\usepackage{indentfirst}            % Package to fix indent on the first paragraph of a section
+
+
+%%-- Command for empty page --%%
+%% use command \NewPage
+\newcommand*\NewPage{\newpage\null\thispagestyle{empty}\newpage}
+
+\title{\textlatin{Fuzzy Project Antoniadis Dimitrios}}
+\author{
+    Αντωνιάδης Δημήτριος
+}

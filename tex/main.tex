@@ -1,0 +1,42 @@
+\documentclass{article}
+\usepackage{import}
+\usepackage{settings}
+
+\begin{document}
+
+%Title
+\import{./}{title.tex}
+
+%Contents
+\tableofcontents
+
+%Figures
+%\listoffigures
+%\clearpage
+%Tables
+%\listoftables
+%\clearpage
+    
+
+%--- Εισαγωγή ---
+\section{Εισαγωγή}
+
+Το παρόν έγγραφο αποτελεί την αναφορά της εργασίας εξαμήνου που πραγματοποιήθηκε στο πλαίσιο του μαθήματος \textbf{Ευφυή Συστήματα Ρομπότ}. 
+
+%--- Αναφορά ---
+\import{./}{report.tex}
+\clearpage
+
+
+
+\clearpage
+
+%--- Βιβλιογραφία ---
+%\section*{Βιβλιογραφία}\label{Bibliography}
+%\addcontentsline{toc}{section}{\nameref{Bibliography}}
+%\selectlanguage{english}
+%\printbibliography[keyword={english},heading=none]
+%\selectlanguage{greek}
+%\printbibliography[keyword={greek},heading=none]
+
+\end{document}
