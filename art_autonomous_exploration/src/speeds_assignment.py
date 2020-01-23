@@ -136,9 +136,9 @@ class RobotController:
         # and omega = omega_path + c*omega_obs
         c1 = 10**(-5)
         c2 = 10**(-5)
-        self.linear_velocity  = -0.05 + l_goal + l_laser * c1
+        self.linear_velocity  = l_goal + l_laser * c1
         if self.linear_velocity == 0: # just in case it stops
-            self.linear_velocity = 0.001
+            self.linear_velocity = -0.05
 
         self.angular_velocity = a_goal + a_laser * c2
 

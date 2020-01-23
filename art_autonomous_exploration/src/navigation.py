@@ -106,7 +106,7 @@ class Navigation:
 
             # check distance with the i_th target
             if i != (len(self.subtargets)-1):
-                if dist < 8:        #if distance found to be small from a terget set as next the target i + 1
+                if dist < 10:        #if distance found to be small from a terget set as next the target i + 1
                     self.next_subtarget = i + 1
                     self.counter_to_next_sub = self.count_limit
             else:
@@ -211,6 +211,23 @@ class Navigation:
 
         # Reverse the path to start from the robot
         self.path = self.path[::-1]
+
+        # Smooth path
+        if len(self.path) > 3:
+            x = np.array(self.path)
+            y = np.copy(x)
+            a = 0.5
+            b = 0.1
+
+            epsilon = np.sum(np.abs(a * (x[1:-1, :] - y[1:-1, :]) + b * (y[2:, :] - 2*y[1:-1, :] + y[:-2, :])))
+
+            while epsilon > 1e-3:
+                y[1:-1, :] += a * (x[1:-1, :] - y[1:-1, :]) + b * (y[2:, :] - 2*y[1:-1, :] + y[:-2, :])
+
+                epsilon = np.sum(np.abs(a * (x[1:-1, :] - y[1:-1, :]) + b * (y[2:, :] - 2*y[1:-1, :] + y[:-2, :])))
+
+            # Copy the smoother path
+            self.path = y.tolist()
 
         # Break the path to subgoals every 2 pixels (1m = 20px)
         step = 1
