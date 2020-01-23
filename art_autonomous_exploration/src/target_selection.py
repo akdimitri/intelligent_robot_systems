@@ -152,7 +152,7 @@ class TargetSelection:
 
                 # Calculate the coverage weight
                 pathIndex = np.rint(path).astype(int)
-                weightCove = 1 - np.sum(coverage[pathIndex[:, 0], pathIndex[:, 1]]) / (path.shape[0] * 100)
+                weightCove = 1 - np.sum(coverage[pathIndex[:, 0], pathIndex[:, 1]]) / (path.shape[0] * 255)
 
                 weights.append([i, weightDists, weightTopo, weightTurn, weightCove])
 

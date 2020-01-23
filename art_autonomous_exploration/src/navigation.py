@@ -94,7 +94,7 @@ class Navigation:
         # What if a later subtarget or the end has been reached before the
         # next subtarget? Alter the code accordingly.
 
-        #
+        # Challenge 5 edit: Dimitrios Antoniadis
 
         # Instead of checking the distance of the next target,
         # check the distance of the remaining targets, therefore you may reach to a next subject
@@ -212,6 +212,8 @@ class Navigation:
         # Reverse the path to start from the robot
         self.path = self.path[::-1]
 
+        ###################################################
+        # Extra Challenge 1
         # Smooth path
         if len(self.path) > 3:
             x = np.array(self.path)
@@ -228,6 +230,7 @@ class Navigation:
 
             # Copy the smoother path
             self.path = y.tolist()
+        ####################################################
 
         # Break the path to subgoals every 2 pixels (1m = 20px)
         step = 1
@@ -309,6 +312,8 @@ class Navigation:
         # robot_perception and the next_subtarget [x,y]. From these, you can
         # compute the robot velocities for the vehicle to approach the target.
         # Hint: Trigonometry is required
+
+        # Challenge 3       edit: Dimitrios Antoniadis date 22/01/2020
 
         if self.subtargets and self.next_subtarget <= len(self.subtargets) - 1:
             st_x = self.subtargets[self.next_subtarget][0]
