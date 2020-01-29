@@ -73,7 +73,7 @@ class RobotController:
       # Check what laser_scan contains and create linear and angular speeds
       # for obstacle avoidance
 
-      # Challenge 1     edit: Dimitrios Antoniadis      date: 22/01/2020
+      # Challenge 1
 
       # Calculate Number of Measurements
       N_measurements = len(scan)
@@ -120,8 +120,8 @@ class RobotController:
       [l_laser, a_laser] = self.produceSpeedsLaser()
 
       # You must fill these
-      self.linear_velocity  = 0           # edit: Dimitrios Antoniadis date: 22/01/2020
-      self.angular_velocity = 0           # edit: Dimitrios Antoniadis date: 22/01/2020
+      self.linear_velocity  = 0
+      self.angular_velocity = 0
 
       if self.move_with_target == True:
         [l_goal, a_goal] = self.navigation.velocitiesToNextSubtarget()
@@ -129,7 +129,7 @@ class RobotController:
         # You must combine the two sets of speeds. You can use motor schema,
         # subsumption of whatever suits your better.
 
-        # Challenge 4 edit: Dimitrios Antoniadis date: 22/01/2020
+        # Challenge 4
 
         # Based on presentation 9, we know
         # that in a motor schema u = upath + c*u_obs
@@ -153,7 +153,7 @@ class RobotController:
         # Implement obstacle avoidance here using the laser speeds.
         # Hint: Subtract them from something constant
 
-        # Challenge 1     edit: Dimitrios Antoniadis      date: 23/01/2020
+        # Challenge 1     
 
         l_laser = l_laser + 100      # add sth constant to move
         a_laser = a_laser/300

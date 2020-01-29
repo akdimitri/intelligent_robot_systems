@@ -94,7 +94,7 @@ class Navigation:
         # What if a later subtarget or the end has been reached before the
         # next subtarget? Alter the code accordingly.
 
-        # Challenge 5 edit: Dimitrios Antoniadis
+        # Challenge 5 
 
         # Instead of checking the distance of the next target,
         # check the distance of the remaining targets, therefore you may reach to a next subject
@@ -263,7 +263,7 @@ class Navigation:
           # You must understand what self.robot_perception.resolution
           # and self.robot_perception.origin are.
 
-          # Challenge 2: edit Dimitrios Antoniadis date 22/01/2020
+          # Challenge 2:
 
           ps.pose.position.x = p[0] * self.robot_perception.resolution + self.robot_perception.origin['x']
           ps.pose.position.y = p[1] * self.robot_perception.resolution + self.robot_perception.origin['y']
@@ -313,7 +313,7 @@ class Navigation:
         # compute the robot velocities for the vehicle to approach the target.
         # Hint: Trigonometry is required
 
-        # Challenge 3       edit: Dimitrios Antoniadis date 22/01/2020
+        # Challenge 3
 
         if self.subtargets and self.next_subtarget <= len(self.subtargets) - 1:
             st_x = self.subtargets[self.next_subtarget][0]
